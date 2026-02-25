@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", "60"))  # seconds
-KEYWORDS = ["motor vehicle", "motor vehicles"]  # case-insensitive
+KEYWORDS = ["interstate cooperation"]  # TEMP TEST - change back to ["motor vehicle", "motor vehicles"]
 
 # --- GA Legislature API auth constants (from their public JS bundle) ---
 OBSCURE_KEY = "jVEXFFwSu36BwwcP83xYgxLAhLYmKk"
