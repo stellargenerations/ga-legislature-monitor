@@ -1,0 +1,2 @@
+# No external dependencies — uses Python standard library only
+# (urllib, hashlib, json, logging, datetime are all built-in)
