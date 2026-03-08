@@ -1,7 +1,7 @@
 """
-GA Legislature Motor Vehicle Meeting Monitor
-Continuously polls the GA House schedule API and sends a Telegram alert
-when a Motor Vehicles committee meeting appears on the calendar.
+GA Legislature Transportation Meeting Monitor
+Continuously polls the GA Senate schedule API and sends a Telegram alert
+when a Transportation committee meeting appears on the calendar.
 """
 
 import hashlib
@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", "60"))  # seconds
-KEYWORDS = ["motor vehicle", "motor vehicles"]  # case-insensitive
+KEYWORDS = ["transportation"]  # case-insensitive
 
 # --- GA Legislature API auth constants (from their public JS bundle) ---
 OBSCURE_KEY = "jVEXFFwSu36BwwcP83xYgxLAhLYmKk"
@@ -49,7 +49,7 @@ def get_token() -> str:
 # ── API ───────────────────────────────────────────────────────────────────────
 
 def fetch_meetings(token: str) -> list:
-    """Fetch the next 14 days of House meetings from the GA Legislature API."""
+    """Fetch the next 14 days of Senate meetings from the GA Legislature API."""
     now = datetime.now(timezone.utc).astimezone()
     end = now + timedelta(days=14)
 
@@ -58,7 +58,7 @@ def fetch_meetings(token: str) -> list:
         return dt.strftime("%a %b %d %Y")
 
     params = urllib.parse.urlencode({
-        "chamber": 1,
+        "chamber": 2,
         "startDate": fmt(now),
         "endDate": fmt(end),
     })
@@ -98,9 +98,9 @@ def send_telegram(message: str):
             log.error(f"Telegram send failed: {resp}")
 
 
-# ── Motor Vehicle Detection ───────────────────────────────────────────────────
+# ── Transportation Detection ──────────────────────────────────────────────────
 
-def is_motor_vehicle_meeting(meeting: dict) -> bool:
+def is_transportation_meeting(meeting: dict) -> bool:
     subject = meeting.get("subject", "").lower()
     return any(kw in subject for kw in KEYWORDS)
 
@@ -120,7 +120,7 @@ def format_alert(meeting: dict) -> str:
         time_str = start
 
     lines = [
-        "🚨 <b>Motor Vehicle Meeting Detected!</b>",
+        "🚨 <b>Transportation Meeting Detected!</b>",
         "",
         f"📋 <b>{subject}</b>",
         f"📅 {time_str}",
@@ -131,7 +131,7 @@ def format_alert(meeting: dict) -> str:
     if livestream:
         lines.append(f"📺 <a href='{livestream}'>Watch Livestream</a>")
     lines.append("")
-    lines.append("🔗 <a href='https://www.legis.ga.gov/schedule/house'>Full House Schedule</a>")
+    lines.append("🔗 <a href='https://www.legis.ga.gov/schedule/senate'>Full Senate Schedule</a>")
 
     return "\n".join(lines)
 
@@ -139,7 +139,7 @@ def format_alert(meeting: dict) -> str:
 # ── Main Loop ─────────────────────────────────────────────────────────────────
 
 def main():
-    log.info("GA Legislature Motor Vehicle Monitor starting...")
+    log.info("GA Legislature Transportation Monitor starting...")
     log.info(f"Checking every {CHECK_INTERVAL} seconds | Keywords: {KEYWORDS}")
 
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
@@ -152,7 +152,7 @@ def main():
     token_expires_at = 0
 
     # Send startup confirmation
-    send_telegram("✅ <b>GA Legislature Monitor is running!</b>\nWatching for Motor Vehicles committee meetings on the House schedule.")
+    send_telegram("✅ <b>GA Legislature Monitor is running!</b>\nWatching for Transportation committee meetings on the Senate schedule.")
     log.info("Startup message sent to Telegram.")
 
     while True:
@@ -168,7 +168,7 @@ def main():
 
             new_alerts = 0
             for meeting in meetings:
-                if not is_motor_vehicle_meeting(meeting):
+                if not is_transportation_meeting(meeting):
                     continue
 
                 meeting_id = meeting.get("id", meeting.get("start", ""))
@@ -176,7 +176,7 @@ def main():
                     continue  # Already alerted
 
                 # New motor vehicle meeting found!
-                log.info(f"MATCH: {meeting.get('subject')} on {meeting.get('start')}")
+                log.info(f"Transportation MATCH: {meeting.get('subject')} on {meeting.get('start')}")
                 alert_text = format_alert(meeting)
                 send_telegram(alert_text)
                 alerted_ids.add(meeting_id)
