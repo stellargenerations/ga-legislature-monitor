@@ -116,8 +116,12 @@ CHAMBER_SCHEDULE_URLS = {
     CHAMBER_HOUSE:  "https://www.legis.ga.gov/schedule/house",
 }
 
+EXCLUDE_KEYWORDS = ["appropriations"]
+
 def is_monitored_meeting(meeting: dict, chamber: int) -> bool:
     subject = meeting.get("subject", "").lower()
+    if any(ex in subject for ex in EXCLUDE_KEYWORDS):
+        return False
     return any(kw in subject for kw in CHAMBER_KEYWORDS[chamber])
 
 
