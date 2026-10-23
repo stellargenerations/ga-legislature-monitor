@@ -22,7 +22,7 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", "60"))  # seconds
 
 # Keywords per chamber (case-insensitive substring match)
-SENATE_KEYWORDS = ["public safety", "banking", "financial", "government oversight"]
+SENATE_KEYWORDS = [ ]
 HOUSE_KEYWORDS  = ["motor vehicles"]
 
 CHAMBER_SENATE = 2
