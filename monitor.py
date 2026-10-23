@@ -3,7 +3,7 @@ GA Legislature Committee Meeting Monitor
 Continuously polls the GA Legislature schedule API and sends Telegram alerts
 for specific committee meetings in the Senate and House.
 
-Senate: Public Safety, Banking & Financial, Government Oversight
+Senate: 
 House:  Motor Vehicles
 """
 
